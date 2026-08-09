@@ -1,0 +1,112 @@
+---
+title: "Black-Scholes Option Pricing in R"
+output:
+  html_document:
+    toc: true
+---
+
+## Introduction
+
+The Black-Scholes model is a mathematical model used to determine the price of European call and put options. This document demonstrates how to implement this model using R.
+
+## R Code for Black-Scholes Calculation
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Function Definitions
+
+We start by defining helper functions for calculating the cumulative distribution function of the standard normal distribution ($N$), and the intermediate values $d_1$ and $d_2$.
+
+```{r black-scholes-functions}
+# Load necessary library
+library(stats)
+
+# Function to calculate N(x)
+N <- function(x) {
+  pnorm(x)
+}
+
+# Function to calculate d1 and d2
+d1 <- function(S0, X, r, sigma, T) {
+  (log(S0 / X) + (r + sigma^2 / 2) * T) / (sigma * sqrt(T))
+}
+
+d2 <- function(S0, X, r, sigma, T) {
+  d1(S0, X, r, sigma, T) - sigma * sqrt(T)
+}
+```
+
+### Black-Scholes Call Option Price
+
+The call option price $C$ is calculated using the formula:
+
+$$ C = S_0 N(d_1) - X e^{-rT} N(d_2) $$
+
+```{r black-scholes-call}
+# Function to calculate Black-Scholes call option price
+black_scholes_call <- function(S0, X, r, sigma, T) {
+  C <- S0 * N(d1(S0, X, r, sigma, T)) - X * exp(-r * T) * N(d2(S0, X, r, sigma, T))
+  return(C)
+}
+```
+
+### Black-Scholes Put Option Price
+
+The put option price $P$ is calculated using the formula:
+
+$$ P = X e^{-rT} N(-d_2) - S_0 N(-d_1) $$
+
+```{r black-scholes-put}
+# Function to calculate Black-Scholes put option price
+black_scholes_put <- function(S0, X, r, sigma, T) {
+  P <- X * exp(-r * T) * N(-d2(S0, X, r, sigma, T)) - S0 * N(-d1(S0, X, r, sigma, T))
+  return(P)
+}
+```
+
+### Example Usage
+
+We will use the Black-Scholes functions to calculate the prices of a call and put option with the following parameters:
+
+- $S_0 = 100$ (Current stock price)
+- $X = 100$ (Strike price)
+- $r = 0.05$ (Risk-free interest rate)
+- $\sigma = 0.2$ (Volatility)
+- $T = 1$ (Time to maturity)
+
+```{r example-usage}
+# Example usage
+S0 <- 100  # Current stock price
+X <- 100   # Strike price
+r <- 0.05  # Risk-free interest rate
+sigma <- 0.2  # Volatility
+T <- 1     # Time to maturity (in years)
+
+call_price <- black_scholes_call(S0, X, r, sigma, T)
+put_price <- black_scholes_put(S0, X, r, sigma, T)
+
+print(paste("Black-Scholes Call Option Price:", call_price))
+print(paste("Black-Scholes Put Option Price:", put_price))
+```
+
+### Output
+
+```{r output}
+S0 <- 100  # Current stock price
+X <- 100   # Strike price
+r <- 0.05  # Risk-free interest rate
+sigma <- 0.2  # Volatility
+T <- 1     # Time to maturity (in years)
+
+call_price <- black_scholes_call(S0, X, r, sigma, T)
+put_price <- black_scholes_put(S0, X, r, sigma, T)
+
+cat("Black-Scholes Call Option Price:", call_price, "\n")
+cat("Black-Scholes Put Option Price:", put_price, "\n")
+```
+
+## Conclusion
+
+The Black-Scholes model is a powerful tool for pricing European options. This document has demonstrated how to implement the model in R and provided an example usage of the code.
